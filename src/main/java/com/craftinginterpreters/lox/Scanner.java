@@ -106,6 +106,8 @@ public class Scanner {
                     // comments go until the end of the line
                     while (peek() != '\n' && !isAtEnd())
                         advance();
+                } else if (match('*')) {
+                    handleMultilineComments();
                 } else {
                     addToken(TokenType.SLASH);
                 }
@@ -134,6 +136,43 @@ public class Scanner {
                     Lox.error(line, "Unexpected character: " + c);
                 }
                 break;
+        }
+    }
+
+    private void handleMultilineComments() {
+        boolean commentEnded = false;
+
+        outer:
+        while (!isAtEnd()) {
+            char c = peek();
+            
+            switch (c) {
+                // case '/':
+                    // handle nested multi line comments
+                    // if (match('*')) {
+                    //     handleMultilineComments();
+                    // }
+                    // break;
+
+                case '*':
+                    if (match('/')) {
+                        commentEnded = true;
+                        break outer;
+                    }
+
+                case '\n':
+                    line++;
+                    break;
+
+                default:
+                    break;
+            }
+
+            advance();
+        }
+
+        if (!commentEnded) {
+            Lox.error(line, "Unterminated multiline comment");
         }
     }
 

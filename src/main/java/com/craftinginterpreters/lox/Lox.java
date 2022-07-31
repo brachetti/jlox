@@ -1,29 +1,33 @@
 package com.craftinginterpreters.lox;
 
+import static com.craftinginterpreters.lox.ExitCode.NORMAL;
+import static com.craftinginterpreters.lox.ExitCode.SCANNER_ERROR;
+
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 
 /**
- * Hello world!
+ * Lox main class.
  */
 public final class Lox {
 
-    private static boolean hadError = false;
+    private static boolean hadError;
 
     /**
      * Says hello to the world.
+     *
      * @param args The arguments of the program.
      * @throws IOException
      */
-    public static void main(String[] args) throws IOException {
+    public static void main(final String[] args) throws IOException {
         if (args.length > 1) {
             System.out.println("Usage: jlox [script]");
-            System.exit(64);
+            System.exit(NORMAL.getCode());
         }
 
         if (args.length == 1) {
@@ -40,22 +44,26 @@ public final class Lox {
         for (;;) {
             System.out.print("> ");
             String line = reader.readLine();
-            if (line == null) break;
+            if (line == null) {
+                break;
+            }
             run(line);
-            
+
             // reset, to not kill the entire experience
             hadError = false;
         }
     }
 
-    private static void runFile(String path) throws IOException {
+    private static void runFile(final String path) throws IOException {
         byte[] bytes = Files.readAllBytes(Paths.get(path));
         run(new String(bytes, Charset.defaultCharset()));
 
-        if (hadError) System.exit(65);
+        if (hadError) {
+            System.exit(SCANNER_ERROR.getCode());
+        }
     }
 
-    private static void run(String source) {
+    private static void run(final String source) {
         final Scanner scanner = new Scanner(source);
         List<Token> tokens = scanner.scanTokens();
 
@@ -64,12 +72,12 @@ public final class Lox {
         }
     }
 
-    static void error(int line, String message) {
+    static void error(final int line, final String message) {
         report(line, "", message);
     }
 
-    private static void report(int line, String where, String message) {
-        System.err.println("[line " + line +"] Error " + where + ": " + message);
+    private static void report(final int line, final String where, final String message) {
+        System.err.println("[line " + line + "] Error " + where + ": " + message);
         hadError = true;
     }
 }

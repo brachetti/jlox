@@ -1,0 +1,3 @@
+#!/bin/bash
+
+java -cp target/classes com.craftinginterpreters.tools.GenerateAst src/main/java/com/craftinginterpreters/lox

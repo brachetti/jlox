@@ -3,8 +3,8 @@ package com.craftinginterpreters.lox;
 /**
  * Hello world!
  */
-public final class App {
-    private App() {
+public final class Lox {
+    private Lox() {
     }
 
     /**

@@ -76,16 +76,16 @@ public class Scanner {
                 addToken(TokenType.DOT);
                 break;
             case '-':
-                addToken(TokenType.MINUS);
+                addToken(TokenType.MINUS, c);
                 break;
             case '+':
-                addToken(TokenType.PLUS);
+                addToken(TokenType.PLUS, c);
                 break;
             case ';':
                 addToken(TokenType.SEMICOLON);
                 break;
             case '*':
-                addToken(TokenType.STAR);
+                addToken(TokenType.STAR, c);
                 break;
 
             case '!':
@@ -109,7 +109,7 @@ public class Scanner {
                 } else if (match('*')) {
                     handleMultilineComments();
                 } else {
-                    addToken(TokenType.SLASH);
+                    addToken(TokenType.SLASH, c);
                 }
                 break;
 
@@ -184,7 +184,7 @@ public class Scanner {
         if (type == null) {
             addToken(TokenType.IDENTIFIER, text);
         } else {
-            addToken(type);
+            addToken(type, text);
         }
     }
 
@@ -266,6 +266,14 @@ public class Scanner {
 
     private void addToken(TokenType type) {
         addToken(type, null);
+    }
+
+    private void addToken(TokenType type, char lexeme) {
+        addToken(type, "" + lexeme);
+    }
+
+    private void addToken(TokenType type, String lexeme) {
+        tokens.add(new Token(type, lexeme, null, line));
     }
 
     private void addToken(TokenType type, Object literal) {

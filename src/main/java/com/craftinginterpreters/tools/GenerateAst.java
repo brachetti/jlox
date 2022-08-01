@@ -29,7 +29,7 @@ public class GenerateAst {
         String path = outputDir + "/" + baseName + ".java";
         PrintWriter writer = new PrintWriter(path, "UTF-8");
 
-        writer.println("package com.craftinginterpreters.lox");
+        writer.println("package com.craftinginterpreters.lox;");
         writer.println();
         writer.println("import java.util.List;");
         writer.println();
@@ -39,32 +39,67 @@ public class GenerateAst {
         writer.println(" * This class is auto-generated. Do not edit it by hand!");
         writer.println("*/");
         writer.println("abstract class " + baseName + " {");
+
+        defineVisitor(writer, baseName, types);
+
+        writer.println();
+        writer.println("  abstract <R> R accept(Visitor<R> visitor);");
         
+        defineTypes(writer, baseName, types);
+
+        writer.println("}");
+        writer.close();
+    }
+
+    private static void defineTypes(PrintWriter writer, String baseName, List<String> types) {
         for (String type : types) {
             writer.println();
             String className = type.split(":")[0].trim();
             String fields = type.split(":")[1].trim();
             defineType(writer, className, baseName, fields);
         }
+    }
+
+    private static void defineVisitor(PrintWriter writer, String baseName, List<String> types) {
+        writer.println("  interface Visitor<R> {");
+
+        for (String type : types) {
+            String typeClass = type.split(":")[0].trim();
+            writer.println("    R visit" + typeClass + baseName + "(" + typeClass + " " + baseName.toLowerCase() + ");");
+        }
+
         writer.println("}");
-        writer.close();
     }
 
     private static void defineType(PrintWriter writer, String className, String baseName, String fieldList) {
         String[] fields = fieldList.split(", ");
         writer.println("  static class " + className + " extends " + baseName + " {");
+
+        // fields
         for (String field : fields) {
             writer.println("    final " + field + ";");
         }
         writer.println();
+        // ------
 
+        // constructor
         writer.println("    " + className + "(" + fieldList + ") {");
         for (String field : fields) {
             String name = field.split(" ")[1];
             writer.println("      this." + name + " = " + name + ";");
         }
         writer.println("    }");
+        // ------
 
+        // Personal Visitor pattern
+        writer.println();
+        writer.println("    @Override");
+        writer.println("    <R> R accept(Visitor<R> visitor) {");
+        writer.println("      return visitor.visit" + className + baseName + "(this);");
+        writer.println("    }");
+        // ------
+
+        // close type class
         writer.println("  }");
     }
 }

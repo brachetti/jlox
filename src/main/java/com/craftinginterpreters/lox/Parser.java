@@ -121,6 +121,8 @@ public class Parser {
                 case CLASS: case FOR: case FUN: case IF: case PRINT:
                 case RETURN: case VAR: case WHILE:
                     return;
+                default:
+                    break;
             }
         }
 

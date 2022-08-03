@@ -3,8 +3,6 @@ package com.craftinginterpreters.lox;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.craftinginterpreters.lox.Stmt.Print;
-
 public class Parser {
     private final List<Token> tokens;
     private int current = 0;
@@ -20,13 +18,41 @@ public class Parser {
         List<Stmt> statements = new ArrayList<>();
         try {
             while (!isAtEnd()) {
-                statements.add(statement());
+                Stmt declaration = declaration();
+                if (declaration != null) {
+                    statements.add(declaration);
+                }
             }
         } catch (ParseError error) {
             return new ArrayList<>();
         }
 
         return statements;
+    }
+
+    private Stmt declaration() {
+        try {
+            if (match(TokenType.VAR)) {
+                return varDeclaration();
+            }
+            return statement();
+        } catch (ParseError error) {
+            synchronize();
+            return null;
+        }
+    }
+
+    private Stmt varDeclaration() {
+        Token name = consume(TokenType.IDENTIFIER, "Expect variable name");
+
+        Expr initializer = null;
+        if (match(TokenType.EQUAL)) {
+            initializer = expression();
+        }
+
+        consume(TokenType.SEMICOLON, "Expect ; after variable declaration");
+
+        return new Stmt.Var(name, initializer);
     }
 
     private Stmt statement() {
@@ -131,6 +157,14 @@ public class Parser {
             return new Expr.Grouping(expression);
         }
 
+        if (match(TokenType.VAR)) {
+            return new Expr.Variable(previous());
+        }
+
+        if (match(TokenType.IDENTIFIER)) {
+            return new Expr.Variable(previous());
+        }
+
         throw error(peek(), "Expect expression.");
     }
 
@@ -163,6 +197,7 @@ public class Parser {
                 case WHILE:
                     return;
                 default:
+                    advance();
                     break;
             }
         }

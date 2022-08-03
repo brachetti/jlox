@@ -1,11 +1,14 @@
 package com.craftinginterpreters.lox;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import com.craftinginterpreters.lox.Stmt.Print;
 
 public class Parser {
     private final List<Token> tokens;
     private int current = 0;
-    
+
     /**
      * @param tokens
      */
@@ -13,12 +16,39 @@ public class Parser {
         this.tokens = tokens;
     }
 
-    Expr parse() {
+    List<Stmt> parse() {
+        List<Stmt> statements = new ArrayList<>();
         try {
-            return expression();
+            while (!isAtEnd()) {
+                statements.add(statement());
+            }
         } catch (ParseError error) {
-            return null;
+            return new ArrayList<>();
         }
+
+        return statements;
+    }
+
+    private Stmt statement() {
+        if (match(TokenType.PRINT)) {
+            return printStatement();
+        }
+
+        return expressionStatement();
+    }
+
+    private Stmt expressionStatement() {
+        Expr expr = expression();
+        consume(TokenType.SEMICOLON, "Expect ; after expression.");
+
+        return new Stmt.Expression(expr);
+    }
+
+    private Stmt printStatement() {
+        Expr value = expression();
+        consume(TokenType.SEMICOLON, "Expect ; after value.");
+
+        return new Stmt.Print(value);
     }
 
     private Expr expression() {
@@ -84,9 +114,12 @@ public class Parser {
     }
 
     private Expr primary() {
-        if (match(TokenType.FALSE)) return new Expr.Literal(false);
-        if (match(TokenType.TRUE)) return new Expr.Literal(true);
-        if (match(TokenType.NIL)) return new Expr.Literal(null);
+        if (match(TokenType.FALSE))
+            return new Expr.Literal(false);
+        if (match(TokenType.TRUE))
+            return new Expr.Literal(true);
+        if (match(TokenType.NIL))
+            return new Expr.Literal(null);
 
         if (match(TokenType.NUMBER, TokenType.STRING)) {
             return new Expr.Literal(previous().literal);
@@ -102,7 +135,8 @@ public class Parser {
     }
 
     private Token consume(TokenType type, String message) {
-        if (check(type)) return advance();
+        if (check(type))
+            return advance();
 
         throw error(peek(), message);
     }
@@ -115,11 +149,18 @@ public class Parser {
     private void synchronize() {
         advance();
         while (!isAtEnd()) {
-            if (previous().type == TokenType.SEMICOLON) return;
+            if (previous().type == TokenType.SEMICOLON)
+                return;
 
             switch (peek().type) {
-                case CLASS: case FOR: case FUN: case IF: case PRINT:
-                case RETURN: case VAR: case WHILE:
+                case CLASS:
+                case FOR:
+                case FUN:
+                case IF:
+                case PRINT:
+                case RETURN:
+                case VAR:
+                case WHILE:
                     return;
                 default:
                     break;
@@ -145,12 +186,14 @@ public class Parser {
     }
 
     private Token advance() {
-        if (!isAtEnd()) current++;
+        if (!isAtEnd())
+            current++;
         return previous();
     }
 
     private boolean check(TokenType type) {
-        if (isAtEnd()) return false;
+        if (isAtEnd())
+            return false;
         return peek().type == type;
     }
 

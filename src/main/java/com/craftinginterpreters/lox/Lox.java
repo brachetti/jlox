@@ -17,6 +17,7 @@ import java.util.List;
 public final class Lox {
 
     private static boolean hadError;
+    private static Interpreter interpreter = new Interpreter();
 
     /**
      * Says hello to the world.
@@ -68,13 +69,13 @@ public final class Lox {
         List<Token> tokens = scanner.scanTokens();
 
         Parser parser = new Parser(tokens);
-        Expr expr = parser.parse();
+        List<Stmt> statements = parser.parse();
 
         if (hadError) return;
 
-        System.out.println(new AstPrinter().print(expr));
-        System.out.println("---");
-        System.out.println(new Interpreter().interpret(expr));
+        // System.out.println(new AstPrinter().print(statements));
+        // System.out.println("---");
+        interpreter.interpret(statements);
     }
 
     static void error(final int line, final String message) {

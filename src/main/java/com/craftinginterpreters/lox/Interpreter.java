@@ -1,11 +1,15 @@
 package com.craftinginterpreters.lox;
 
+import java.util.List;
+
 import com.craftinginterpreters.lox.Expr.Binary;
 import com.craftinginterpreters.lox.Expr.Grouping;
 import com.craftinginterpreters.lox.Expr.Literal;
 import com.craftinginterpreters.lox.Expr.Unary;
+import com.craftinginterpreters.lox.Stmt.Expression;
+import com.craftinginterpreters.lox.Stmt.Print;
 
-public class Interpreter implements Expr.Visitor<Object> {
+public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
     public static class InterpreterError extends RuntimeException {
         final Token token;
@@ -20,13 +24,18 @@ public class Interpreter implements Expr.Visitor<Object> {
         }
     }
 
-    public String interpret(Expr expr) {
+    public void interpret(List<Stmt> statements) {
         try {
-            Object result = evaluate(expr);
-            return stringify(result);
+            for (Stmt statment : statements) {
+                execute(statment);
+            }
         } catch (InterpreterError error) {
-            return null;
+            
         }
+    }
+
+    private void execute(Stmt statment) {
+        statment.accept(this);
     }
 
     private String stringify(Object object) {
@@ -153,5 +162,18 @@ public class Interpreter implements Expr.Visitor<Object> {
     private InterpreterError error(Token token, String message) {
         Lox.error(token, message);
         return new InterpreterError(message, token);
+    }
+
+    @Override
+    public Void visitExpressionStmt(Expression stmt) {
+        evaluate(stmt.expression);
+        return null;
+    }
+
+    @Override
+    public Void visitPrintStmt(Print stmt) {
+        Object value = evaluate(stmt.expression);
+        System.out.println(stringify(value));
+        return null;
     }
 }

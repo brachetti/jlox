@@ -273,7 +273,7 @@ public class Scanner {
     }
 
     private void addToken(TokenType type, String lexeme) {
-        tokens.add(new Token(type, lexeme, null, line));
+        tokens.add(new Token(type, lexeme, lexeme, line));
     }
 
     private void addToken(TokenType type, Object literal) {

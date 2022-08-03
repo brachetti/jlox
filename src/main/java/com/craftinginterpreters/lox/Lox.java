@@ -73,8 +73,6 @@ public final class Lox {
 
         if (hadError) return;
 
-        // System.out.println(new AstPrinter().print(statements));
-        // System.out.println("---");
         interpreter.interpret(statements);
     }
 

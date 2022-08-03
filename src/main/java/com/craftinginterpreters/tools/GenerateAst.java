@@ -23,6 +23,11 @@ public class GenerateAst {
             "Literal     : Object value",
             "Unary       : Token operator, Expr right"
         ));
+
+        defineAst(outputDir, "Stmt", Arrays.asList(
+            "Expression  : Expr expression",
+            "Print  : Expr expression"
+        ));
     }
 
     private static void defineAst(String outputDir, String baseName, List<String> types) throws FileNotFoundException, UnsupportedEncodingException {
@@ -34,7 +39,7 @@ public class GenerateAst {
         writer.println("import java.util.List;");
         writer.println();
         writer.println("/**");
-        writer.println(" * Expression class.");
+        writer.println(" * Ast class for " + baseName + ".");
         writer.println(" * ");
         writer.println(" * This class is auto-generated. Do not edit it by hand!");
         writer.println("*/");

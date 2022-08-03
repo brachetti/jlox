@@ -1,7 +1,9 @@
 package com.craftinginterpreters.lox;
 
+import java.util.List;
+
 /**
- * Expression class.
+ * Ast class for Expr.
  * 
  * This class is auto-generated. Do not edit it by hand!
 */

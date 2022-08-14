@@ -3,6 +3,8 @@ package com.craftinginterpreters.lox;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.craftinginterpreters.lox.Expr.Variable;
+
 public class Parser {
     private final List<Token> tokens;
     private int current = 0;
@@ -70,6 +72,24 @@ public class Parser {
         return new Stmt.Expression(expr);
     }
 
+    private Expr assignment() {
+        Expr expr = equality();
+
+        if (match(TokenType.EQUAL)) {
+            Token equals = previous();
+            Expr value = assignment();
+            
+            if (expr instanceof Expr.Variable) {
+                Token name = ((Expr.Variable) expr).name;
+                return new Expr.Assign(name, value);
+            }
+
+            error(equals, "Invalid assignment target");
+        }
+        
+        return expr;
+    }
+
     private Stmt printStatement() {
         Expr value = expression();
         consume(TokenType.SEMICOLON, "Expect ; after value.");
@@ -78,7 +98,7 @@ public class Parser {
     }
 
     private Expr expression() {
-        return equality();
+        return assignment();
     }
 
     private Expr equality() {

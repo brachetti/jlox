@@ -25,6 +25,18 @@ public class Environment {
         this.values.put(name, value);
     }
 
+    int count() {
+        return values.size();
+    }
+
+    int countAll() {
+        if (enclosing != null) {
+            return enclosing.countAll() + count();
+        }
+
+        return count();
+    }
+
     Object get(Token name) {
         if (values.containsKey(name.lexeme)) {
             return values.get(name.lexeme);

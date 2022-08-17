@@ -7,7 +7,7 @@ import java.util.List;
  * 
  * This class is auto-generated. Do not edit it by hand!
 */
-abstract class Expr {
+abstract class Expr implements Input {
   interface Visitor<R> {
     R visitAssignExpr(Assign expr);
     R visitBinaryExpr(Binary expr);

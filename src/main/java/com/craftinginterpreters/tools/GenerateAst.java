@@ -29,6 +29,7 @@ public class GenerateAst {
         defineAst(outputDir, "Stmt", Arrays.asList(
             "Block     : List<Stmt> statements",    
             "Expression     : Expr expression",
+            "If             : Expr condition, Stmt thenBranch, Stmt elseBranch",
             "Var            : Token name, Expr initializer",
             "Print          : Expr expression"
         ));
@@ -47,7 +48,7 @@ public class GenerateAst {
         writer.println(" * ");
         writer.println(" * This class is auto-generated. Do not edit it by hand!");
         writer.println("*/");
-        writer.println("abstract class " + baseName + " {");
+        writer.println("abstract class " + baseName + " implements Input {");
 
         defineVisitor(writer, baseName, types);
 

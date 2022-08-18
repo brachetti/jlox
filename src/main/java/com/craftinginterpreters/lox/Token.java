@@ -26,4 +26,38 @@ public class Token {
         + " " 
         + (literal != null ? literal : "");
     }
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((lexeme == null) ? 0 : lexeme.hashCode());
+        result = prime * result + ((literal == null) ? 0 : literal.hashCode());
+        result = prime * result + ((type == null) ? 0 : type.hashCode());
+        return result;
+    }
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        Token other = (Token) obj;
+        if (lexeme == null) {
+            if (other.lexeme != null)
+                return false;
+        } else if (!lexeme.equals(other.lexeme))
+            return false;
+        if (literal == null) {
+            if (other.literal != null)
+                return false;
+        } else if (!literal.equals(other.literal))
+            return false;
+        if (type != other.type)
+            return false;
+        return true;
+    }
+
+    
 }

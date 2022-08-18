@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -12,7 +11,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class InterpreterTest {
+public class InterpreterTest extends CommonTest {
 
     /**
      * SUT
@@ -99,22 +98,6 @@ public class InterpreterTest {
         thenContentWasPrinted("5");
     }
 
-    private Expr.Binary Calc(Expr.Literal left, Token operator, Expr.Literal right) {
-        return new Expr.Binary(left, operator, right);
-    }
-
-    private Token Plus() {
-        return new Token(TokenType.PLUS, null, null, 0);
-    }
-
-    private Expr E_Var(String name) {
-        return new Expr.Variable(identifier(name));
-    }
-
-    private Token identifier(String name) {
-        return new Token(TokenType.IDENTIFIER, name, null, 0);
-    }
-
     private void thenContentWasPrinted(String expected) {
         assertEquals(expected + "\n", outContent.toString());
     }
@@ -125,18 +108,6 @@ public class InterpreterTest {
 
     private void whenInterpreting() {
         this.interpreter.interpret(this.inInput);
-    }
-
-    Stmt.Print Print(Expr expr) {
-        return new Stmt.Print(expr);
-    }
-
-    Stmt.Var S_Var(String name, Expr value) {
-        return new Stmt.Var(identifier(name), value);
-    }
-
-    Expr.Literal literal(Object value) {
-        return new Expr.Literal(value);
     }
 
     private List<Stmt> inputs(Stmt ...inputs) {

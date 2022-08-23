@@ -16,80 +16,81 @@ import java.util.List;
  */
 public final class Lox {
 
-    private static boolean hadError;
-    private static Interpreter interpreter = new Interpreter();
+  private static boolean hadError;
+  private static Interpreter interpreter = new Interpreter();
 
-    /**
-     * Says hello to the world.
-     *
-     * @param args The arguments of the program.
-     * @throws IOException
-     */
-    public static void main(final String[] args) throws IOException {
-        if (args.length > 1) {
-            System.out.println("Usage: jlox [script]");
-            System.exit(NORMAL.getCode());
-        }
-
-        if (args.length == 1) {
-            runFile(args[0]);
-        } else {
-            runPrompt();
-        }
+  /**
+   * Says hello to the world.
+   *
+   * @param args The arguments of the program.
+   * @throws IOException
+   */
+  public static void main(final String[] args) throws IOException {
+    if (args.length > 1) {
+      System.out.println("Usage: jlox [script]");
+      System.exit(NORMAL.getCode());
     }
 
-    private static void runPrompt() throws IOException {
-        InputStreamReader input = new InputStreamReader(System.in);
-        BufferedReader reader = new BufferedReader(input);
-
-        for (;;) {
-            System.out.print("> ");
-            String line = reader.readLine();
-            if (line == null) {
-                break;
-            }
-            run(line);
-
-            // reset, to not kill the entire experience
-            hadError = false;
-        }
+    if (args.length == 1) {
+      runFile(args[0]);
+    } else {
+      runPrompt();
     }
+  }
 
-    private static void runFile(final String path) throws IOException {
-        byte[] bytes = Files.readAllBytes(Paths.get(path));
-        run(new String(bytes, Charset.defaultCharset()));
+  private static void runPrompt() throws IOException {
+    InputStreamReader input = new InputStreamReader(System.in);
+    BufferedReader reader = new BufferedReader(input);
 
-        if (hadError) {
-            System.exit(SCANNER_ERROR.getCode());
-        }
+    for (;;) {
+      System.out.print("> ");
+      String line = reader.readLine();
+      if (line == null) {
+        break;
+      }
+      run(line);
+
+      // reset, to not kill the entire experience
+      hadError = false;
     }
+  }
 
-    private static void run(final String source) {
-        final Scanner scanner = new Scanner(source);
-        List<Token> tokens = scanner.scanTokens();
+  private static void runFile(final String path) throws IOException {
+    byte[] bytes = Files.readAllBytes(Paths.get(path));
+    run(new String(bytes, Charset.defaultCharset()));
 
-        Parser parser = new Parser(tokens);
-        List<Stmt> statements = parser.parse();
-
-        if (hadError) return;
-
-        interpreter.interpret(statements);
+    if (hadError) {
+      System.exit(SCANNER_ERROR.getCode());
     }
+  }
 
-    static void error(final int line, final String message) {
-        report(line, "", message);
-    }
+  private static void run(final String source) {
+    final Scanner scanner = new Scanner(source);
+    List<Token> tokens = scanner.scanTokens();
 
-    private static void report(final int line, final String where, final String message) {
-        System.err.println("[line " + line + "] Error " + where + ": " + message);
-        hadError = true;
-    }
+    Parser parser = new Parser(tokens);
+    List<Stmt> statements = parser.parse();
 
-    public static void error(Token token, String message) {
-        if (token.type == TokenType.EOF) {
-            report(token.line, " at end", message);
-        } else {
-            report(token.line, " at '" + token.lexeme +"'", message);
-        }
+    if (hadError)
+      return;
+
+    interpreter.interpret(statements);
+  }
+
+  static void error(final int line, final String message) {
+    report(line, "", message);
+  }
+
+  private static void report(final int line, final String where, final String message) {
+    System.err.println("[line " + line + "] Error " + where + ": " + message);
+    hadError = true;
+  }
+
+  public static void error(Token token, String message) {
+    if (token.type == TokenType.EOF) {
+      report(token.line, " at end", message);
+    } else {
+      report(token.line, " at '" + token.lexeme + "'", message);
     }
+  }
 }

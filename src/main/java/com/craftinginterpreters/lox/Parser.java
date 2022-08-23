@@ -3,8 +3,6 @@ package com.craftinginterpreters.lox;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.craftinginterpreters.lox.Expr.Variable;
-
 public class Parser {
     private final List<Token> tokens;
     private int current = 0;

@@ -2,6 +2,8 @@ package com.craftinginterpreters.lox;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.util.Stack;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -11,6 +13,7 @@ public class EnvironmentTest {
      * SUT
      */
     private Environment environment;
+    private Stack<Environment> parentEnvs = new Stack<>();
     private int answerCount;
     private Object answerValue;
 
@@ -57,6 +60,16 @@ public class EnvironmentTest {
         thenValueIs(1);
     }
 
+    @Test
+    void shouldNotBleedIntoParentEnv() {
+        givenAnEmptyEnvironment();
+        givenANewBlockEnv();
+        givenVariableDefinedAndAssigned("two", 2);
+        givenCurrentEnvironmentEnds();
+        whenCountingVars();
+        thenCountIs(0);
+    }
+
     private void thenValueIs(Object expected) {
         assertEquals(expected, this.answerValue);
     }
@@ -78,7 +91,12 @@ public class EnvironmentTest {
     }
 
     private void givenANewBlockEnv() {
+        this.parentEnvs.push(this.environment);
         this.environment = new Environment(this.environment);
+    }
+
+    private void givenCurrentEnvironmentEnds() {
+        this.environment = this.parentEnvs.pop();
     }
 
     private void thenCountIs(int expected) {

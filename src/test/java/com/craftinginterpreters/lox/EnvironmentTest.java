@@ -44,6 +44,19 @@ public class EnvironmentTest {
         thenValueIs(1);
     }
 
+    @Test
+    void shouldFindInitializedVarInChildEnv() {
+        givenAnEmptyEnvironment();
+        givenVariableDefinedAndAssigned("one", 1);
+        givenANewBlockEnv();
+        whenCountingVars();
+        thenCountIs(0);
+        whenCountingAllVars();
+        thenCountIs(1);
+        whenGettingValueOf("one");
+        thenValueIs(1);
+    }
+
     private void thenValueIs(Object expected) {
         assertEquals(expected, this.answerValue);
     }

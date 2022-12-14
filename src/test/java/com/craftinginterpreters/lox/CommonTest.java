@@ -1,5 +1,7 @@
 package com.craftinginterpreters.lox;
 
+import java.util.jar.Attributes.Name;
+
 public abstract class CommonTest {
 
     Expr.Binary Calc(Expr.Literal left, Token operator, Expr.Literal right) {
@@ -26,11 +28,23 @@ public abstract class CommonTest {
         return new Stmt.Var(identifier(name), value);
     }
 
+    Stmt.Expression S_Expr(Expr expr) {
+        return new Stmt.Expression(expr);
+    }
+
     Token T_Var() {
         return new Token(TokenType.VAR, "var", "var", 0);
     }
 
     Expr.Literal literal(Object value) {
         return new Expr.Literal(value);
+    }
+
+    Expr E_Assign(String name, Expr value) {
+        return new Expr.Assign(identifier(name), value);
+    }
+
+    Expr E_Assign(String name, Object value) {
+        return new Expr.Assign(identifier(name), literal(value));
     }
 }

@@ -1,6 +1,7 @@
 package com.craftinginterpreters.lox;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
@@ -10,6 +11,8 @@ import java.util.List;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import com.craftinginterpreters.lox.Expr.Assign;
 
 public class InterpreterTest extends CommonTest {
 
@@ -98,6 +101,21 @@ public class InterpreterTest extends CommonTest {
         thenContentWasPrinted("5");
     }
 
+    @Test
+    void shouldNotAllowAccessToUninitializedVar() {
+        givenInput(inputs(
+            S_Var("a", null),
+            S_Var("b", null),
+            S_Expr(E_Assign("a", "assigned")),
+            Print(E_Var("a")), // ok, was assigned before using
+            Print(E_Var("b")) // not ok, we have not put anything into it
+        ));
+        
+        whenInterpreting();
+
+        thenAnErrorHappened();
+    }
+
     private void thenContentWasPrinted(String expected) {
         assertEquals(expected + "\n", outContent.toString());
     }
@@ -106,8 +124,16 @@ public class InterpreterTest extends CommonTest {
         assertEquals("", outContent.toString());
     }
 
+    private void thenAnErrorHappened() {
+        assertNotEquals("", errContent.toString(), "Error Stream should not be empty");
+    }
+
     private void whenInterpreting() {
-        this.interpreter.interpret(this.inInput);
+        try {
+            this.interpreter.interpret(this.inInput);
+        } catch (Exception e) {
+            this.errContent.writeBytes(e.getMessage().getBytes());
+        }
     }
 
     private List<Stmt> inputs(Stmt ...inputs) {

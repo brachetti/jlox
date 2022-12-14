@@ -4,8 +4,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Stack;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import com.craftinginterpreters.lox.Interpreter.InterpreterError;
 
 public class EnvironmentTest {
 
@@ -70,6 +73,20 @@ public class EnvironmentTest {
         thenCountIs(0);
     }
 
+    @Test
+    void shouldNotReturnValueForUnassignedVar() {
+        RuntimeException thrown = Assertions.assertThrows(RuntimeException.class, () -> {
+            givenAnEmptyEnvironment();
+            givenVariableDefined("a");
+            givenVariableDefined("b");
+            givenVariableAssignedValue("a", "some value");
+            whenGettingValueOf("b");
+        },
+        "Expected Interpreter Error");
+
+        
+    }
+
     private void thenValueIs(Object expected) {
         assertEquals(expected, this.answerValue);
     }
@@ -82,8 +99,16 @@ public class EnvironmentTest {
         return new Token(TokenType.IDENTIFIER, name, null, 0);
     }
 
+    private void givenVariableDefined(String name) {
+        givenVariableDefinedAndAssigned(name, null);
+    }
+
     private void givenVariableDefinedAndAssigned(String name, Object value) {
         this.environment.define(name, value);
+    }
+
+    private void givenVariableAssignedValue(String name, Object value) {
+
     }
 
     private void whenCountingAllVars() {

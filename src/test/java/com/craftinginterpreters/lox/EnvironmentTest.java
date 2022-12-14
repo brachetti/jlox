@@ -75,7 +75,7 @@ public class EnvironmentTest {
 
     @Test
     void shouldNotReturnValueForUnassignedVar() {
-        RuntimeException thrown = Assertions.assertThrows(RuntimeException.class, () -> {
+        Assertions.assertThrows(RuntimeException.class, () -> {
             givenAnEmptyEnvironment();
             givenVariableDefined("a");
             givenVariableDefined("b");

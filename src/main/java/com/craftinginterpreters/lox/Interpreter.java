@@ -2,6 +2,10 @@ package com.craftinginterpreters.lox;
 
 import java.util.List;
 
+import javax.management.RuntimeErrorException;
+
+import java.util.ArrayList;
+
 import com.craftinginterpreters.lox.Expr.Assign;
 import com.craftinginterpreters.lox.Expr.Binary;
 import com.craftinginterpreters.lox.Expr.Grouping;
@@ -26,6 +30,10 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     public InterpreterError(String message, Token token) {
       super(message);
       this.token = token;
+    }
+
+    public InterpreterError(Token token, String message) {
+      this(message, token);
     }
   }
 
@@ -105,6 +113,30 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     }
 
     return null;
+  }
+
+  @Override
+  public Object visitCallExpr(Expr.Call expr) {
+    Object callee = evaluate(expr.callee);
+    List<Object> arguments = new ArrayList<>();
+    for (Expr argument : expr.arguments) {
+      arguments.add(evaluate(argument));
+    }
+
+    if (!(callee instanceof LoxCallable)) {
+      throw new InterpreterError(expr.paren, "Can only call functions and classes.");
+    }
+
+    LoxCallable function = (LoxCallable) callee;
+
+    if (arguments.size() != function.arity()) {
+      throw new InterpreterError(expr.paren,
+          "Expected " + 
+          function.arity() + " arguments, got " +
+           arguments.size() + ".");
+    }
+
+    return function.call(this, arguments);
   }
 
   private void guardAgainstDiv0(Binary expr, Object right) {

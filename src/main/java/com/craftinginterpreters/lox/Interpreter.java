@@ -1,6 +1,7 @@
 package com.craftinginterpreters.lox;
 
 import java.util.List;
+import java.text.ParseException;
 import java.util.ArrayList;
 
 import com.craftinginterpreters.lox.Expr.Assign;
@@ -328,6 +329,8 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
       for (Stmt statement : statements) {
         execute(statement);
       }
+    } catch (Break breakStatement) {
+      throw new SyntaxError("break can not occur outside of while loop");
     } finally {
       this.environment = previous;
     }

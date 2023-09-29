@@ -19,6 +19,7 @@ import com.craftinginterpreters.lox.Stmt.Function;
 import com.craftinginterpreters.lox.Stmt.If;
 import com.craftinginterpreters.lox.Stmt.Print;
 import com.craftinginterpreters.lox.Stmt.Var;
+import com.craftinginterpreters.lox.Stmt.While;
 
 public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
@@ -283,6 +284,15 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     }
 
     environment.define(stmt.name.lexeme, value);
+    return null;
+  }
+  
+  @Override
+  public Void visitWhileStmt(While stmt) {
+    while (isTruthy(stmt.condition)) {
+      execute(stmt.body);
+    }
+    
     return null;
   }
 

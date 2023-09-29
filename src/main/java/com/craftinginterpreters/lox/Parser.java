@@ -67,6 +67,10 @@ public class Parser {
             return returnStatement();
         }
 
+        if (match(TokenType.WHILE)) {
+            return whileStatement();
+        }
+
         if (match(TokenType.LEFT_BRACE)) {
             return new Stmt.Block(block());
         }
@@ -157,6 +161,15 @@ public class Parser {
         consume(TokenType.SEMICOLON, "Expect ';' after value.");
         
         return new Stmt.Return(keyword, value);
+    }
+
+    private Stmt whileStatement() {
+        consume(TokenType.LEFT_PAREN, "Expected '(' after 'while'.");
+        Expr condition = expression();
+        consume(TokenType.RIGHT_PAREN, "Expected ')' after condition.");
+        Stmt body = statement();
+
+        return new Stmt.While(condition, body);
     }
 
     private Expr expression() {

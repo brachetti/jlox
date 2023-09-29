@@ -329,7 +329,13 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
   @Override
   public Void visitIfStmt(If stmt) {
-    // TODO Auto-generated method stub
+    if (isTruthy(evaluate(stmt.condition))) {
+      execute(stmt.thenBranch);
+    } else {
+      if (stmt.elseBranch != null) {
+        execute(stmt.elseBranch);
+      }
+    }
     return null;
   }
 }

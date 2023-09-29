@@ -63,6 +63,10 @@ public class Parser {
             return printStatement();
         }
 
+        if (match(TokenType.RETURN)) {
+            return returnStatement();
+        }
+
         if (match(TokenType.LEFT_BRACE)) {
             return new Stmt.Block(block());
         }
@@ -138,6 +142,21 @@ public class Parser {
         consume(TokenType.SEMICOLON, "Expect ; after value.");
 
         return new Stmt.Print(value);
+    }
+
+    private Stmt returnStatement() {
+        Token keyword = previous();
+        Expr value = null;
+
+        if (!check(TokenType.SEMICOLON)) {
+            value = expression();
+        }
+
+        // we could also omit the semicolon here, as some languages do, or even require
+        // for sake of continuity, I believe it's better to also have it here
+        consume(TokenType.SEMICOLON, "Expect ';' after value.");
+        
+        return new Stmt.Return(keyword, value);
     }
 
     private Expr expression() {

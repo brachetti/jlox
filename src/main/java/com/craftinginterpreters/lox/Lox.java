@@ -30,7 +30,7 @@ public final class Lox {
       System.out.println("Usage: jlox [script]");
       System.exit(NORMAL.getCode());
     }
-
+    
     if (args.length == 1) {
       runFile(args[0]);
     } else {

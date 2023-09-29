@@ -13,8 +13,9 @@ abstract class Stmt implements Input {
     R visitExpressionStmt(Expression stmt);
     R visitFunctionStmt(Function stmt);
     R visitIfStmt(If stmt);
-    R visitVarStmt(Var stmt);
     R visitPrintStmt(Print stmt);
+    R visitReturnStmt(Return stmt);
+    R visitVarStmt(Var stmt);
 }
 
   abstract <R> R accept(Visitor<R> visitor);
@@ -79,6 +80,34 @@ abstract class Stmt implements Input {
     }
   }
 
+  static class Print extends Stmt {
+    final Expr expression;
+
+    Print(Expr expression) {
+      this.expression = expression;
+    }
+
+    @Override
+    <R> R accept(Visitor<R> visitor) {
+      return visitor.visitPrintStmt(this);
+    }
+  }
+
+  static class Return extends Stmt {
+    final Token keyword;
+    final Expr expression;
+
+    Return(Token keyword, Expr expression) {
+      this.keyword = keyword;
+      this.expression = expression;
+    }
+
+    @Override
+    <R> R accept(Visitor<R> visitor) {
+      return visitor.visitReturnStmt(this);
+    }
+  }
+
   static class Var extends Stmt {
     final Token name;
     final Expr initializer;
@@ -91,19 +120,6 @@ abstract class Stmt implements Input {
     @Override
     <R> R accept(Visitor<R> visitor) {
       return visitor.visitVarStmt(this);
-    }
-  }
-
-  static class Print extends Stmt {
-    final Expr expression;
-
-    Print(Expr expression) {
-      this.expression = expression;
-    }
-
-    @Override
-    <R> R accept(Visitor<R> visitor) {
-      return visitor.visitPrintStmt(this);
     }
   }
 }

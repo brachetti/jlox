@@ -1,0 +1,5 @@
+fun doSomething(num) {
+    return num * num + 2;
+}
+
+print doSomething(4);

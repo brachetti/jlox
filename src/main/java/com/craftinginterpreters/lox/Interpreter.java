@@ -10,6 +10,7 @@ import com.craftinginterpreters.lox.Expr.Assign;
 import com.craftinginterpreters.lox.Expr.Binary;
 import com.craftinginterpreters.lox.Expr.Grouping;
 import com.craftinginterpreters.lox.Expr.Literal;
+import com.craftinginterpreters.lox.Expr.Logical;
 import com.craftinginterpreters.lox.Expr.Unary;
 import com.craftinginterpreters.lox.Expr.Variable;
 import com.craftinginterpreters.lox.Stmt.Block;
@@ -192,6 +193,19 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
   @Override
   public Object visitLiteralExpr(Literal expr) {
     return expr.value;
+  }
+  
+  @Override
+  public Object visitLogicalExpr(Logical expr) {
+    Object left = evaluate(expr.left);
+
+    if (expr.operator.type == TokenType.OR) {
+      if (isTruthy(left)) return left;
+    } else {
+      if (!isTruthy(left)) return left;
+    }
+    
+    return evaluate(expr.right);
   }
 
   @Override

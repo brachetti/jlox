@@ -120,7 +120,7 @@ public class Parser {
     }
 
     private Expr assignment() {
-        Expr expr = equality();
+        Expr expr = or();
 
         if (match(TokenType.EQUAL)) {
             Token equals = previous();
@@ -161,6 +161,31 @@ public class Parser {
 
     private Expr expression() {
         return assignment();
+    }
+
+    private Expr or() {
+        Expr expr = and();
+
+        while (match(TokenType.OR)) {
+            Token operator = previous();
+            Expr right = and();
+            expr = new Expr.Logical(expr, operator, right);
+        }
+
+        return expr;
+    }
+
+    private Expr and() {
+        Expr expr = equality();
+
+        while (match(TokenType.AND)) {
+            Token operator = previous();
+            // TODO: I believe this should be a call to or()
+            Expr right = equality();
+            expr = new Expr.Logical(expr, operator, right);
+        }
+
+        return expr;
     }
 
     private Expr equality() {

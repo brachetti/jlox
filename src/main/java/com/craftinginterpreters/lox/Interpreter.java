@@ -14,6 +14,7 @@ import com.craftinginterpreters.lox.Expr.Logical;
 import com.craftinginterpreters.lox.Expr.Unary;
 import com.craftinginterpreters.lox.Expr.Variable;
 import com.craftinginterpreters.lox.Stmt.Block;
+import com.craftinginterpreters.lox.Stmt.Break;
 import com.craftinginterpreters.lox.Stmt.Expression;
 import com.craftinginterpreters.lox.Stmt.Function;
 import com.craftinginterpreters.lox.Stmt.If;
@@ -277,6 +278,11 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
   }
 
   @Override
+  public Void visitBreakStmt(Stmt.Break stmt) {
+    throw new com.craftinginterpreters.lox.Break();
+  }
+
+  @Override
   public Void visitVarStmt(Var stmt) {
     Object value = null;
     if (stmt.initializer != null) {
@@ -290,7 +296,11 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
   @Override
   public Void visitWhileStmt(Stmt.While stmt) {
     while (isTruthy(evaluate(stmt.condition))) {
-      execute(stmt.body);
+      try {
+        execute(stmt.body);
+      } catch (com.craftinginterpreters.lox.Break breakStatement) {
+        return null;
+      }
     }
     return null;
   }

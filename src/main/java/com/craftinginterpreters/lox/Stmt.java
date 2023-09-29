@@ -15,8 +15,9 @@ abstract class Stmt implements Input {
     R visitIfStmt(If stmt);
     R visitPrintStmt(Print stmt);
     R visitReturnStmt(Return stmt);
-    R visitVarStmt(Var stmt);
+    R visitBreakStmt(Break stmt);
     R visitWhileStmt(While stmt);
+    R visitVarStmt(Var stmt);
 }
 
   abstract <R> R accept(Visitor<R> visitor);
@@ -109,18 +110,16 @@ abstract class Stmt implements Input {
     }
   }
 
-  static class Var extends Stmt {
-    final Token name;
-    final Expr initializer;
+  static class Break extends Stmt {
+    final Token keyword;
 
-    Var(Token name, Expr initializer) {
-      this.name = name;
-      this.initializer = initializer;
+    Break(Token keyword) {
+      this.keyword = keyword;
     }
 
     @Override
     <R> R accept(Visitor<R> visitor) {
-      return visitor.visitVarStmt(this);
+      return visitor.visitBreakStmt(this);
     }
   }
 
@@ -136,6 +135,21 @@ abstract class Stmt implements Input {
     @Override
     <R> R accept(Visitor<R> visitor) {
       return visitor.visitWhileStmt(this);
+    }
+  }
+
+  static class Var extends Stmt {
+    final Token name;
+    final Expr initializer;
+
+    Var(Token name, Expr initializer) {
+      this.name = name;
+      this.initializer = initializer;
+    }
+
+    @Override
+    <R> R accept(Visitor<R> visitor) {
+      return visitor.visitVarStmt(this);
     }
   }
 }

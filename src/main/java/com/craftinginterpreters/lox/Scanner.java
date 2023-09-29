@@ -23,6 +23,7 @@ public class Scanner {
         keywords.put("true", TokenType.TRUE);
         keywords.put("for", TokenType.FOR);
         keywords.put("while", TokenType.WHILE);
+        keywords.put("break", TokenType.BREAK);
         keywords.put("fun", TokenType.FUN);
         keywords.put("nil", TokenType.NIL);
         keywords.put("print", TokenType.PRINT);

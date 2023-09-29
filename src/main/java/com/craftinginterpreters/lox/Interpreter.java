@@ -1,9 +1,6 @@
 package com.craftinginterpreters.lox;
 
 import java.util.List;
-
-import javax.management.RuntimeErrorException;
-
 import java.util.ArrayList;
 
 import com.craftinginterpreters.lox.Expr.Assign;
@@ -14,7 +11,6 @@ import com.craftinginterpreters.lox.Expr.Logical;
 import com.craftinginterpreters.lox.Expr.Unary;
 import com.craftinginterpreters.lox.Expr.Variable;
 import com.craftinginterpreters.lox.Stmt.Block;
-import com.craftinginterpreters.lox.Stmt.Break;
 import com.craftinginterpreters.lox.Stmt.Expression;
 import com.craftinginterpreters.lox.Stmt.Function;
 import com.craftinginterpreters.lox.Stmt.If;
@@ -279,7 +275,7 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
   @Override
   public Void visitBreakStmt(Stmt.Break stmt) {
-    throw new com.craftinginterpreters.lox.Break();
+    throw new Break();
   }
 
   @Override
@@ -294,11 +290,11 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
   }
   
   @Override
-  public Void visitWhileStmt(Stmt.While stmt) {
+  public Void visitWhileStmt(While stmt) {
     while (isTruthy(evaluate(stmt.condition))) {
       try {
         execute(stmt.body);
-      } catch (com.craftinginterpreters.lox.Break breakStatement) {
+      } catch (Break breakStatement) {
         return null;
       }
     }

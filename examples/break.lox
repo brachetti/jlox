@@ -10,3 +10,10 @@
     print "break stopped at 10?";
     print i == 10;
 }
+
+{
+    print "Expecting an exception of type Break now!";
+    var k = 0;
+    break;
+    print "I should be unreachable";
+}

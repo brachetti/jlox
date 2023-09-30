@@ -70,7 +70,8 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         execute(statment);
       }
     } catch (InterpreterError error) {
-
+      // TODO: With new statements track the current line, so it can be reported properly
+      Lox.error(0, error.getLocalizedMessage());
     }
   }
 

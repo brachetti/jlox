@@ -7,7 +7,7 @@ import java.util.Set;
 
 public class Environment {
     private final Map<String, Object> values = new HashMap<>();
-    private final Set<String> assigned = new HashSet();
+    private final Set<String> assigned = new HashSet<>();
     private final Environment enclosing;
 
     /**
@@ -44,7 +44,7 @@ public class Environment {
     }
 
     Object get(Token name) {
-        String identifier = name.lexeme;
+        final String identifier = name.lexeme;
         if (values.containsKey(identifier)) {
             if (assigned.contains(identifier)) {
                 return values.get(identifier);
@@ -60,7 +60,7 @@ public class Environment {
     }
 
     public void assign(Token name, Object value) {
-        String identifier = name.lexeme;
+        final String identifier = name.lexeme;
         if (values.containsKey(identifier)) {
             values.put(identifier, value);
             assigned.add(identifier);
@@ -71,5 +71,21 @@ public class Environment {
         }
 
         throw new RuntimeException("Undefined variable '" + identifier + "'.");
+    }
+
+    private Environment ancestor(int distance) {
+        Environment environment = this;
+        for (int i = 0; i < distance; i++) {
+            environment = environment.enclosing;
+        }
+        return environment;
+    }
+
+    public Object getAt(Integer distance, Token name) {
+        return ancestor(distance).values.get(name.lexeme);
+    }
+
+    public void assignAt(Integer distance, Token name, Object value) {
+        ancestor(distance).values.put(name.lexeme, value);
     }
 }

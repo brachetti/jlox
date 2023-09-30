@@ -13,7 +13,7 @@
 
 {
     print "Expecting an exception of type Break now!";
-    var k = 0;
+    var msg = "I should be unreachable";
     break;
-    print "I should be unreachable";
+    print msg;
 }

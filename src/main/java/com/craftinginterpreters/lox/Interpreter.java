@@ -13,6 +13,7 @@ import com.craftinginterpreters.lox.Expr.Logical;
 import com.craftinginterpreters.lox.Expr.Unary;
 import com.craftinginterpreters.lox.Expr.Variable;
 import com.craftinginterpreters.lox.Stmt.Block;
+import com.craftinginterpreters.lox.Stmt.Class;
 import com.craftinginterpreters.lox.Stmt.Expression;
 import com.craftinginterpreters.lox.Stmt.Function;
 import com.craftinginterpreters.lox.Stmt.If;
@@ -40,7 +41,7 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
   }
 
   final Environment globals = new Environment();
-  private Environment environment = globals;
+  private Environment environment = new Environment(globals);
   private final Map<Expr, Integer> locals = new HashMap<>();
 
   Interpreter() {
@@ -357,6 +358,14 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     } finally {
       this.environment = previous;
     }
+  }
+
+  @Override
+  public Void visitClassStmt(Class stmt) {
+    environment.define(stmt.name.lexeme, null);
+    LoxClass klass = new LoxClass(stmt.name.lexeme);
+    environment.assign(stmt.name, klass);
+    return null;
   }
 
   @Override

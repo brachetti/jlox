@@ -15,6 +15,7 @@ import com.craftinginterpreters.lox.Expr.Variable;
 import com.craftinginterpreters.lox.Expr.Unary;
 import com.craftinginterpreters.lox.Stmt.Block;
 import com.craftinginterpreters.lox.Stmt.Break;
+import com.craftinginterpreters.lox.Stmt.Class;
 import com.craftinginterpreters.lox.Stmt.Expression;
 import com.craftinginterpreters.lox.Stmt.Function;
 import com.craftinginterpreters.lox.Stmt.If;
@@ -37,6 +38,8 @@ public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
      */
     public Resolver(Interpreter interpreter) {
         this.interpreter = interpreter;
+        // NOTE: We introduce a top-level stack entry here, otherwise the variable lookups for usage of classes do not work anymore
+        this.scopes.push(new HashMap<>());
     }
 
     void resolve(List<Stmt> statements) {
@@ -61,11 +64,14 @@ public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
                 return;
             }
         }
+        
         Lox.error(0, "Unknown Variable '" + name.lexeme + "'.");
     }
 
     private void declare(Token name) {
-        if (scopes.isEmpty()) return;
+        if (scopes.isEmpty()) {
+            return;
+        }
 
         Map<String, VariableCheck> scope = scopes.peek();
 
@@ -77,7 +83,9 @@ public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
     }
     
     private void define(Token name) {
-        if (scopes.isEmpty()) return;
+        if (scopes.isEmpty()) {
+            return;
+        }
 
         scopes.peek().put(name.lexeme, VariableCheck.define());
     }
@@ -245,5 +253,12 @@ public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
         resolve(stmt.body);
         return null;
     }
-    
+
+    @Override
+    public Void visitClassStmt(Class stmt) {
+        declare(stmt.name);
+        define(stmt.name);
+
+        return null;
+    }
 }

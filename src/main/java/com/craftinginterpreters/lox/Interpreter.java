@@ -2,7 +2,6 @@ package com.craftinginterpreters.lox;
 
 import java.util.List;
 import java.util.Map;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -332,6 +331,7 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     if (distance != null) {
       environment.assignAt(distance, expr.name, value);
     } else {
+      
       globals.assign(expr.name, value);
     }
 

@@ -8,21 +8,15 @@
             "type": "java",
             "name": "Launch with Arguments Prompt",
             "request": "launch",
-            "mainClass": "",
-            "args": "${command:SpecifyProgramArgs}"
+            "mainClass": "com.craftinginterpreters.lox.Lox",
+            "args": "${command:SpecifyProgramArgs}",
+            "projectName": "lox"
         },
         {
             "type": "java",
             "name": "Launch Current File",
             "request": "launch",
             "mainClass": "${file}"
-        },
-        {
-            "type": "java",
-            "name": "Launch AstPrinter$AstDemo",
-            "request": "launch",
-            "mainClass": "com.craftinginterpreters.lox.AstPrinter$AstDemo",
-            "projectName": "lox"
         },
         {
             "type": "java",

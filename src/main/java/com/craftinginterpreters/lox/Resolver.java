@@ -11,8 +11,8 @@ import com.craftinginterpreters.lox.Expr.Call;
 import com.craftinginterpreters.lox.Expr.Grouping;
 import com.craftinginterpreters.lox.Expr.Literal;
 import com.craftinginterpreters.lox.Expr.Logical;
-import com.craftinginterpreters.lox.Expr.Unary;
 import com.craftinginterpreters.lox.Expr.Variable;
+import com.craftinginterpreters.lox.Expr.Unary;
 import com.craftinginterpreters.lox.Stmt.Block;
 import com.craftinginterpreters.lox.Stmt.Break;
 import com.craftinginterpreters.lox.Stmt.Expression;
@@ -24,7 +24,7 @@ import com.craftinginterpreters.lox.Stmt.While;
 
 public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
     private final Interpreter interpreter;
-    private final Stack<Map<String, Boolean>> scopes = new Stack<>();
+    private final Stack<Map<String, VariableCheck>> scopes = new Stack<>();
     private FunctionType currentFunction = FunctionType.NONE;
 
     private enum FunctionType {
@@ -57,6 +57,7 @@ public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
         for (int i = scopes.size() - 1; i >= 0; i--) {
             if (scopes.get(i).containsKey(name.lexeme)) {
                 interpreter.resolve(expr, scopes.size() - 1 - i);
+                scopes.get(i).put(name.lexeme, VariableCheck.access());
                 return;
             }
         }
@@ -65,19 +66,19 @@ public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
     private void declare(Token name) {
         if (scopes.isEmpty()) return;
 
-        Map<String, Boolean> scope = scopes.peek();
+        Map<String, VariableCheck> scope = scopes.peek();
 
         if (scope.containsKey(name.lexeme)) {
             Lox.error(name, "Already a variable with this name in this scope.");
         }
 
-        scope.put(name.lexeme, false);
+        scope.put(name.lexeme, VariableCheck.declare());
     }
     
     private void define(Token name) {
         if (scopes.isEmpty()) return;
 
-        scopes.peek().put(name.lexeme, true);
+        scopes.peek().put(name.lexeme, VariableCheck.define());
     }
 
     @Override
@@ -93,6 +94,9 @@ public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
     }
 
     private void endScope() {
+        if (scopes.peek().containsValue(VariableCheck.DECLARED) || scopes.peek().containsValue(VariableCheck.DEFINED)) {
+            Lox.error(0, "Unused variables in block.");
+        }
         scopes.pop();
     }
 
@@ -152,7 +156,8 @@ public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
     public Void visitVariableExpr(Variable expr) {
         if (
             !scopes.isEmpty() &&
-            scopes.peek().get(expr.name.lexeme) == Boolean.FALSE
+            scopes.peek().containsKey(expr.name.lexeme) &&
+            !scopes.peek().get(expr.name.lexeme).wasDefined()
         ) {
             Lox.error(expr.name, "Can't read local variable in its own initializer.");
         }
@@ -163,7 +168,6 @@ public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
 
     @Override
     public Void visitBreakStmt(Break stmt) {
-        // TODO Auto-generated method stub
         return null;
     }
 

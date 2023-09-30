@@ -1,0 +1,18 @@
+{
+  print "defining var in scope 0";
+  var one = 1;
+  {
+    print "entered scope 1";
+    print "accessing var from scope 0";
+    one = one + 1;
+    print "defining var in scope 1";
+    var two = "accessed var in scope 1";
+    print two;
+    print "exiting scope 1";
+  }
+  print "re-entered scope 0";
+  print "exiting scope 0, expecting no error";
+}
+
+print "it worked!";
+

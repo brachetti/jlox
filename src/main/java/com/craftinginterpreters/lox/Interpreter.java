@@ -7,9 +7,11 @@ import java.util.HashMap;
 
 import com.craftinginterpreters.lox.Expr.Assign;
 import com.craftinginterpreters.lox.Expr.Binary;
+import com.craftinginterpreters.lox.Expr.Get;
 import com.craftinginterpreters.lox.Expr.Grouping;
 import com.craftinginterpreters.lox.Expr.Literal;
 import com.craftinginterpreters.lox.Expr.Logical;
+import com.craftinginterpreters.lox.Expr.Set;
 import com.craftinginterpreters.lox.Expr.Unary;
 import com.craftinginterpreters.lox.Expr.Variable;
 import com.craftinginterpreters.lox.Stmt.Block;
@@ -96,6 +98,15 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     }
 
     return object.toString();
+  }
+
+  private Object evaluate(Expr expression) {
+    return expression.accept(this);
+  }
+
+  private InterpreterError error(Token token, String message) {
+    Lox.error(token, message);
+    return new InterpreterError(message, token);
   }
 
   @Override
@@ -242,13 +253,29 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     return true;
   }
 
-  private Object evaluate(Expr expression) {
-    return expression.accept(this);
+  @Override
+  public Object visitGetExpr(Get expr) {
+    Object object = evaluate(expr.object);
+    if (object instanceof LoxInstance) {
+      return ((LoxInstance) object).get(expr.name);
+    }
+    
+    throw new InterpreterError(expr.name, "Only instances have properties.");
   }
 
-  private InterpreterError error(Token token, String message) {
-    Lox.error(token, message);
-    return new InterpreterError(message, token);
+  @Override
+  public Object visitSetExpr(Set expr) {
+    Object object = evaluate(expr.object);
+
+    if (!(object instanceof LoxInstance)) {
+      throw new RuntimeError("Only instances have names");
+    }
+
+    Object value = evaluate(expr.value);
+    LoxInstance instance = (LoxInstance)object;
+    instance.set(expr.name, value);
+
+    return value;
   }
 
   @Override

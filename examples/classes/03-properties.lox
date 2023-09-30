@@ -1,0 +1,7 @@
+class Kid {}
+var first = Kid();
+
+first.name = "First Kid";
+print first.name;
+
+print "set and accessed properties";

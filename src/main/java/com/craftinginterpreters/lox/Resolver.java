@@ -61,6 +61,7 @@ public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
                 return;
             }
         }
+        Lox.error(0, "Unknown Variable '" + name.lexeme + "'.");
     }
 
     private void declare(Token name) {

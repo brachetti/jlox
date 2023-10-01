@@ -28,12 +28,21 @@ public class LoxClass implements LoxCallable {
 
     @Override
     public Integer arity() {
-        return 0;
+        LoxFunction initializer = this.findMethod("init");
+        if (initializer == null) {
+            return 0;
+        }
+        
+        return initializer.arity();
     }
 
     @Override
     public Object call(Interpreter interpreter, List<Object> arguments) {
         instance = new LoxInstance(this);
+        LoxFunction initializer = this.findMethod("init");
+        if (initializer != null) {
+            initializer.bind(instance).call(interpreter, arguments);
+        }
         return instance;
     }
 
@@ -41,7 +50,7 @@ public class LoxClass implements LoxCallable {
         if (methods.containsKey(identifier)) {
             return methods.get(identifier);
         }
-        
+
         return null;
     }
 }

@@ -2,14 +2,23 @@ package com.craftinginterpreters.lox;
 
 import java.util.List;
 
+import com.craftinginterpreters.lox.Stmt.Function;
+
 public class LoxFunction implements LoxCallable {
 
     private final Stmt.Function declaration;
     private final Environment closure;
 
+    private final boolean isInitializer;
+
     LoxFunction(Stmt.Function declaration, Environment closure) {
+        this(declaration, closure, false);
+    }
+
+    public LoxFunction(Function declaration, Environment closure, boolean isInitializer) {
         this.declaration = declaration;
         this.closure = closure;
+        this.isInitializer = isInitializer;
     }
 
     @Override
@@ -30,8 +39,13 @@ public class LoxFunction implements LoxCallable {
         try {
             interpreter.executeBlock(declaration.body, local);
         } catch (Return result) {
+            if (isInitializer) {
+                return closure.getAt(0, "this");
+            }
             return result.value;
         }
+
+        if (isInitializer) return closure.getAt(0, "this");
 
         return null;
     }
@@ -41,9 +55,13 @@ public class LoxFunction implements LoxCallable {
         return "<fn " + declaration.name.lexeme + ">";
     }
 
-    public Object bind(LoxInstance loxInstance) {
+    public LoxFunction bind(LoxInstance loxInstance) {
         Environment classClosure = new Environment(closure);
         classClosure.define("this", loxInstance);
-        return new LoxFunction(declaration, classClosure);
+        return new LoxFunction(
+            declaration, 
+            classClosure, 
+            isInitializer
+        );
     }
 }

@@ -81,8 +81,12 @@ public class Environment {
         return environment;
     }
 
+    public Object getAt(Integer distance, String name) {
+        return ancestor(distance).values.get(name);
+    }
+
     public Object getAt(Integer distance, Token name) {
-        return ancestor(distance).values.get(name.lexeme);
+        return getAt(distance, name.lexeme);
     }
 
     public void assignAt(Integer distance, Token name, Object value) {

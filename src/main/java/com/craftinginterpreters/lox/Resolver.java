@@ -34,7 +34,8 @@ public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
     private enum FunctionType {
         NONE,
         FUNCTION,
-        METHOD
+        METHOD,
+        INITIALIZER
     }
 
     private enum ClassType {
@@ -268,6 +269,10 @@ public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
       if (currentFunction == FunctionType.NONE) {
         Lox.error(stmt.keyword, "Can't return from top-level code.");
       }
+
+      if (currentFunction == FunctionType.INITIALIZER) {
+        Lox.error(stmt.keyword, "Can't returm from an initializer.");
+      }
       
         if (stmt.expression != null) {
         resolve(stmt.expression);
@@ -306,6 +311,9 @@ public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
 
         for (Stmt.Function method : stmt.methods) {
             FunctionType declaration = FunctionType.METHOD;
+            if (method.name.equals("init")) {
+                declaration = FunctionType.INITIALIZER;
+            }
             resolveFunction(method, declaration);
         }
 

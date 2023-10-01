@@ -37,6 +37,13 @@ public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
         METHOD
     }
 
+    private enum ClassType {
+        NONE,
+        CLASS
+    }
+
+    private ClassType currenClassType = ClassType.NONE;
+
     /**
      * @param interpreter
      */
@@ -194,7 +201,16 @@ public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
     
     @Override
     public Void visitThisExpr(This expr) {
-        resolveLocal(expr, expr.keyword);
+        switch (this.currenClassType) {
+            case CLASS:
+                resolveLocal(expr, expr.keyword);
+                break;
+            case NONE:
+            default:
+                Lox.error(expr.keyword, "only allowed in a class context.");
+                break;
+
+        }
         return null;
     }
 
@@ -279,6 +295,8 @@ public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
 
     @Override
     public Void visitClassStmt(Class stmt) {
+        currenClassType = ClassType.CLASS;
+
         declare(stmt.name);
         define(stmt.name);
 
@@ -292,7 +310,8 @@ public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
         }
 
         endScope();
-
+        
+        currenClassType = ClassType.NONE;
         return null;
     }
 }

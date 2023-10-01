@@ -1,14 +1,17 @@
 package com.craftinginterpreters.lox;
 
 import java.util.List;
+import java.util.Map;
 
 public class LoxClass implements LoxCallable {
 
     private final String name;
     private LoxInstance instance;
+    private final Map<String, LoxFunction> methods;
 
-    public LoxClass(String name) {
+    public LoxClass(String name, Map<String, LoxFunction> methods) {
         this.name = name;
+        this.methods = methods;
     }
 
     @Override
@@ -34,5 +37,11 @@ public class LoxClass implements LoxCallable {
         return instance;
     }
 
-    
+    public LoxFunction findMethod(String identifier) {
+        if (methods.containsKey(identifier)) {
+            return methods.get(identifier);
+        }
+        
+        return null;
+    }
 }

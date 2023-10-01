@@ -18,6 +18,9 @@ public class LoxInstance {
             return fields.get(identifier);
         }
 
+        LoxFunction method = klass.findMethod(identifier);
+        if (method != null) return method;
+
         throw new RuntimeError("Undefined property '" + identifier + "'.");
     }
 

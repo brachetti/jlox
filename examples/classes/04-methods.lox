@@ -1,0 +1,10 @@
+class DevonshireCream {
+  serveOn() {
+    return "Scones";
+  }
+}
+
+print DevonshireCream;
+var cream = DevonshireCream();
+print cream.serveOn;
+print cream.serveOn();

@@ -19,7 +19,7 @@ public class LoxInstance {
         }
 
         LoxFunction method = klass.findMethod(identifier);
-        if (method != null) return method;
+        if (method != null) return method.bind(this);
 
         throw new RuntimeError("Undefined property '" + identifier + "'.");
     }
@@ -30,7 +30,6 @@ public class LoxInstance {
     }
 
     public void set(Token name, Object value) {
-        // TODO make it an error to try and set unknown fields
         fields.put(name.lexeme, value);
     }
 }

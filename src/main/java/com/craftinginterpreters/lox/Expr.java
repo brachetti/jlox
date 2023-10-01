@@ -14,6 +14,7 @@ abstract class Expr implements Input {
     R visitCallExpr(Call expr);
     R visitGetExpr(Get expr);
     R visitSetExpr(Set expr);
+    R visitThisExpr(This expr);
     R visitGroupingExpr(Grouping expr);
     R visitLiteralExpr(Literal expr);
     R visitLogicalExpr(Logical expr);
@@ -101,6 +102,19 @@ abstract class Expr implements Input {
     @Override
     <R> R accept(Visitor<R> visitor) {
       return visitor.visitSetExpr(this);
+    }
+  }
+
+  static class This extends Expr {
+    final Token keyword;
+
+    This(Token keyword) {
+      this.keyword = keyword;
+    }
+
+    @Override
+    <R> R accept(Visitor<R> visitor) {
+      return visitor.visitThisExpr(this);
     }
   }
 

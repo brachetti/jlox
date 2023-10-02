@@ -55,6 +55,7 @@ public class Parser {
 
         List<Stmt.Function> methods = new ArrayList<>();
         List<Stmt.Function> classMethods = new ArrayList<>();
+        List<Stmt.Function> accessors = new ArrayList<>();
         while (!check(TokenType.RIGHT_BRACE) && !isAtEnd()) {
             if (check(TokenType.CLASS)) {
                 advance();
@@ -135,22 +136,26 @@ public class Parser {
 
     private Stmt.Function function(String kind) {
         Token name = consume(TokenType.IDENTIFIER, "Expected " + kind + " name.");
-
-        consume(TokenType.LEFT_PAREN, "Expected '(' after " + kind + " declaration.");
         List<Token> parameters = new ArrayList<>();
-        if (!check(TokenType.RIGHT_PAREN)) {
-            do {
-                if (parameters.size() >= 255) {
-                    error(peek(), "Can't haev more than 255 parameters.");
-                }
 
-                parameters.add(
-                    consume(TokenType.IDENTIFIER, "Expect parameter name")
-                );
-            } while (match(TokenType.COMMA));
+        if (check(TokenType.LEFT_BRACE)) {
+            // this is a getter instead
+        } else {
+            consume(TokenType.LEFT_PAREN, "Expected '(' after " + kind + " declaration.");
+            if (!check(TokenType.RIGHT_PAREN)) {
+                do {
+                    if (parameters.size() >= 255) {
+                        error(peek(), "Can't haev more than 255 parameters.");
+                    }
+
+                    parameters.add(
+                        consume(TokenType.IDENTIFIER, "Expect parameter name")
+                    );
+                } while (match(TokenType.COMMA));
+            }
+            consume(TokenType.RIGHT_PAREN, "Expected ')' after parameters.");
         }
-        consume(TokenType.RIGHT_PAREN, "Expected ')' after parameters.");
-
+        
         consume(TokenType.LEFT_BRACE, "Expected '{' before " + kind + " body.");
          // Notice: block assumes, the { has already been parsed
         // and will check for } by itself.
@@ -158,6 +163,8 @@ public class Parser {
         
         return new Stmt.Function(name, parameters, body);
     }
+
+    
 
     private Expr assignment() {
         Expr expr = or();

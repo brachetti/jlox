@@ -74,7 +74,8 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
       }
     } catch (InterpreterError error) {
       // TODO: With new statements track the current line, so it can be reported properly
-      Lox.error(0, error.getLocalizedMessage());
+      int line = (error.token == null) ? 0 : error.token.line;
+      Lox.error(line, error.getLocalizedMessage());
     }
   }
 
@@ -160,13 +161,14 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
   @Override
   public Object visitCallExpr(Expr.Call expr) {
     Object callee = evaluate(expr.callee);
+    
+    if (!(callee instanceof LoxCallable)) {
+      throw new InterpreterError(expr.paren, "Can only call functions and classes.");
+    }
+    
     List<Object> arguments = new ArrayList<>();
     for (Expr argument : expr.arguments) {
       arguments.add(evaluate(argument));
-    }
-
-    if (!(callee instanceof LoxCallable)) {
-      throw new InterpreterError(expr.paren, "Can only call functions and classes.");
     }
 
     LoxCallable function = (LoxCallable) callee;
@@ -258,7 +260,11 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
   public Object visitGetExpr(Get expr) {
     Object object = evaluate(expr.object);
     if (object instanceof LoxInstance) {
-      return ((LoxInstance) object).get(expr.name);
+      Object result = ((LoxInstance) object).get(expr.name);
+      if (result instanceof LoxFunction && ((LoxFunction)result).arity() == 0) {
+        return ((LoxFunction)result).call(this, List.of());
+      }
+      return result;
     }
     
     throw new InterpreterError(expr.name, "Only instances have properties.");

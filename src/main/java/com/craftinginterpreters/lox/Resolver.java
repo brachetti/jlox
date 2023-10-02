@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
+import java.util.stream.Collectors;
 
 import com.craftinginterpreters.lox.Expr.Assign;
 import com.craftinginterpreters.lox.Expr.Binary;
@@ -35,6 +36,7 @@ public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
         NONE,
         FUNCTION,
         METHOD,
+        CLASS_METHOD,
         INITIALIZER
     }
 
@@ -115,8 +117,17 @@ public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
     }
 
     private void endScope() {
-        if (scopes.peek().containsValue(VariableCheck.DECLARED) || scopes.peek().containsValue(VariableCheck.DEFINED)) {
-            Lox.error(0, "Unused variables in block.");
+        List<String> unusedVars = scopes.peek().entrySet()
+                .stream()
+                .filter(e -> !e.getValue().wasAccessed())
+                .filter(e -> !e.getKey().equals("this"))
+                .map(e -> e.getKey())
+                .collect(Collectors.toList());
+        if (!unusedVars.isEmpty()) {
+            String s = unusedVars
+                .stream()
+                .collect(Collectors.joining(", "));
+            Lox.error(0, "Unused variables in block: " + s);
         }
         scopes.pop();
     }
@@ -314,6 +325,11 @@ public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
             if (method.name.equals("init")) {
                 declaration = FunctionType.INITIALIZER;
             }
+            resolveFunction(method, declaration);
+        }
+
+        for (Stmt.Function method : stmt.classMethods) {
+            FunctionType declaration = FunctionType.CLASS_METHOD;
             resolveFunction(method, declaration);
         }
 
